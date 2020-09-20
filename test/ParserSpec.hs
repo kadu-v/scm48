@@ -20,3 +20,9 @@ spec = do
     it "parseAtom xx-yyy" $ parse parseAtom "scm48" "xx-yy" `shouldBe` (Right $ Atom "xx-yy")
     it "parseAtom #t" $ parse parseAtom "scm48" "#t" `shouldBe` (Right $ Bool True)
     it "parseAtom #f" $ parse parseAtom "scm48" "#f" `shouldBe` (Right $ Bool False)
+
+  describe "test of parseNumber" $ do
+    it "parseNumber 0" $ parse parseNumber "scm48" "0" `shouldBe` (Right $ Number 0)
+    it "parseNumber 123" $ parse parseNumber "scm48" "123" `shouldBe` (Right $ Number 123)
+    it "parseNumber 1234" $ parse parseNumber "scm48" "1234" `shouldBe` (Right $ Number 1234)
+    it "parseNumber 1111" $ parse parseNumber "scm48" "1111" `shouldBe` (Right $ Number 1111)
