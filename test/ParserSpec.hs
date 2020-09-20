@@ -8,9 +8,15 @@ import Text.ParserCombinators.Parsec hiding (spaces)
 spec :: Spec
 spec = do
   describe "test of parseString" $ do
-    it "parseString foo" $ parse parseString "scm48" "\"foo\"" `shouldBe` (Right $ String "foo")
-    it "parseString bar" $ parse parseString "scm48" "\"bar\"" `shouldBe` (Right $ String "bar")
-    it "parseString xx1" $ parse parseString "scm48" "\"xx1\"" `shouldBe` (Right $ String "xx1")
+    it "parseString \"foo\"" $ parse parseString "scm48" "\"foo\"" `shouldBe` (Right $ String "foo")
+    it "parseString \"bar\"" $ parse parseString "scm48" "\"bar\"" `shouldBe` (Right $ String "bar")
+    it "parseString \"xx1\"" $ parse parseString "scm48" "\"xx1\"" `shouldBe` (Right $ String "xx1")
+    it "parseString \"xx\"" $ parse parseString "scm48" "\"\\\"xx\"" `shouldBe` (Right $ String "\"xx")
+    it "parseString \"\\yy\"" $ parse parseString "scm48" "\"\\\\yy\"" `shouldBe` (Right $ String "\\yy")
+    it "parseString \"\\zz\\n\"" $ parse parseString "scm48" "\"zz\\n\"" `shouldBe` (Right $ String "zz\n")
+    it "parseString \"\\vv\\r\"" $ parse parseString "scm48" "\"vv\\r\"" `shouldBe` (Right $ String "vv\r")
+    it "parseString \"\\ww\\t\"" $ parse parseString "scm48" "\"ww\\t\"" `shouldBe` (Right $ String "ww\t")
+    it "parseString \"\\uu\\\\\"" $ parse parseString "scm48" "\"uu\\\\\"" `shouldBe` (Right $ String "uu\\")
 
   describe "test of parseAtom" $ do
     it "parseAtom x" $ parse parseAtom "scm48" "x" `shouldBe` (Right $ Atom "x")
@@ -18,11 +24,20 @@ spec = do
     it "parseAtom var1" $ parse parseAtom "scm48" "var1" `shouldBe` (Right $ Atom "var1")
     it "parseAtom hoge_huga" $ parse parseAtom "scm48" "hoge_huga" `shouldBe` (Right $ Atom "hoge_huga")
     it "parseAtom xx-yyy" $ parse parseAtom "scm48" "xx-yy" `shouldBe` (Right $ Atom "xx-yy")
-    it "parseAtom #t" $ parse parseAtom "scm48" "#t" `shouldBe` (Right $ Bool True)
-    it "parseAtom #f" $ parse parseAtom "scm48" "#f" `shouldBe` (Right $ Bool False)
 
   describe "test of parseNumber" $ do
     it "parseNumber 0" $ parse parseNumber "scm48" "0" `shouldBe` (Right $ Number 0)
     it "parseNumber 123" $ parse parseNumber "scm48" "123" `shouldBe` (Right $ Number 123)
     it "parseNumber 1234" $ parse parseNumber "scm48" "1234" `shouldBe` (Right $ Number 1234)
     it "parseNumber 1111" $ parse parseNumber "scm48" "1111" `shouldBe` (Right $ Number 1111)
+
+  describe "test of parseBool" $ do
+    it "parseBool #t" $ parse parseBool "scm48" "#t" `shouldBe` (Right $ Bool True)
+    it "parseBool #f" $ parse parseBool "scm48" "#f" `shouldBe` (Right $ Bool False)
+
+  describe "test of parseExpr" $ do
+    it "parseExpr xx-yy" $ parse parseExpr "scm48" "xx-yy" `shouldBe` (Right $ Atom "xx-yy")
+    it "parseExpr 1234" $ parse parseExpr "scm48" "1234" `shouldBe` (Right $ Number 1234)
+    it "parseExpr \"hoge\"" $ parse parseExpr "scm48" "\"hoge\"" `shouldBe` (Right $ String "hoge")
+    it "parseExpr #t" $ parse parseExpr "scm48" "#t" `shouldBe` (Right $ Bool True)
+    it "parseExpr #f" $ parse parseExpr "scm48" "#f" `shouldBe` (Right $ Bool False)
