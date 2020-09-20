@@ -1,0 +1,72 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 46e3b3a1080d45f99eeec54df48f1d18b6f17ec3b63488ba0c91a6ff51b12d62
+
+name:           scm48
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/scm48#readme>
+homepage:       https://github.com/githubuser/scm48#readme
+bug-reports:    https://github.com/githubuser/scm48/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2020 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/scm48
+
+library
+  exposed-modules:
+      Eval
+      Lib
+      Parser
+      Syntax
+  other-modules:
+      Paths_scm48
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , hspec
+    , mtl
+    , parsec
+  default-language: Haskell2010
+
+executable scm48-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_scm48
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , scm48
+  default-language: Haskell2010
+
+test-suite scm48-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      EvalSpec
+      ParserSpec
+      Paths_scm48
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , hspec
+    , parsec
+    , scm48
+  default-language: Haskell2010
