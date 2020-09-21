@@ -40,6 +40,11 @@ spec = do
     it "parseList \"1\"" $ parse parseList "scm48" "1" `shouldBe` (Right $ List [Number 1])
     it "parseList \"1 #t \"hoge\"\"" $ parse parseList "scm48" "1 #t \"hoge\"" `shouldBe` (Right $ List [Number 1, Bool True, String "hoge"])
 
+  describe "test of parseDottedList" $ do
+    it "parseDottedList 1 . 2" $ parse parseDottedList "scm48" "1 . 2" `shouldBe` (Right $ DottedList [Number 1] (Number 2))
+    it "parseDottedList 1 . \"hoge\"" $ parse parseDottedList "scm48" "1 . \"hoge\"" `shouldBe` (Right $ DottedList [Number 1] (String "hoge"))
+    it "parseDottedList 1 . #t" $ parse parseDottedList "scm48" "1 . #t" `shouldBe` (Right $ DottedList [Number 1] (Bool True))
+
   describe "test of parseExpr" $ do
     it "parseExpr xx-yy" $ parse parseExpr "scm48" "xx-yy" `shouldBe` (Right $ Atom "xx-yy")
     it "parseExpr 1234" $ parse parseExpr "scm48" "1234" `shouldBe` (Right $ Number 1234)
