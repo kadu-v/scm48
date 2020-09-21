@@ -53,9 +53,14 @@ parseBool = do
     'f' -> Bool False
 
 --
-
 parseExpr :: Parser LispVal
 parseExpr = parseAtom <|> parseNumber <|> parseString <|> parseBool
+
+--
+parseList :: Parser LispVal
+parseList = List <$> sepBy parseExpr spaces
+
+--
 
 --
 readExpr :: String -> String
