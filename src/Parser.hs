@@ -53,10 +53,6 @@ parseBool = do
     'f' -> Bool False
 
 --
-parseExpr :: Parser LispVal
-parseExpr = parseAtom <|> parseNumber <|> parseString <|> parseBool
-
---
 parseList :: Parser LispVal
 parseList = List <$> sepBy parseExpr spaces
 
@@ -68,7 +64,27 @@ parseDottedList = do
   return $ DottedList head tail
 
 --
+parseQuoted :: Parser LispVal
+parseQuoted = do
+  char '\''
+  x <- parseExpr
+  return $ List [Atom "quote", x]
+
+--
+parseExpr :: Parser LispVal
+parseExpr =
+  parseAtom
+    <|> parseNumber
+    <|> parseString
+    <|> parseBool
+    <|> do
+      char '('
+      x <- try parseList <|> parseDottedList
+      char ')'
+      return x
+
+--
 readExpr :: String -> String
 readExpr input = case parse parseExpr "scm48" input of
   Left err -> "No match: " ++ show err
-  Right val -> "Found value" ++ show val
+  Right val -> "Found value: " ++ show val

@@ -45,9 +45,19 @@ spec = do
     it "parseDottedList 1 . \"hoge\"" $ parse parseDottedList "scm48" "1 . \"hoge\"" `shouldBe` (Right $ DottedList [Number 1] (String "hoge"))
     it "parseDottedList 1 . #t" $ parse parseDottedList "scm48" "1 . #t" `shouldBe` (Right $ DottedList [Number 1] (Bool True))
 
+  describe "test of parseQuoted" $ do
+    it "parseQuoted \'x" $ parse parseQuoted "scm48" "\'x" `shouldBe` (Right $ List [Atom "quote", Atom "x"])
+    it "parseQuoted \'1" $ parse parseQuoted "scm48" "\'1" `shouldBe` (Right $ List [Atom "quote", Number 1])
+    it "parseQuoted \'#t" $ parse parseQuoted "scm48" "\'#t" `shouldBe` (Right $ List [Atom "quote", Bool True])
+
   describe "test of parseExpr" $ do
     it "parseExpr xx-yy" $ parse parseExpr "scm48" "xx-yy" `shouldBe` (Right $ Atom "xx-yy")
     it "parseExpr 1234" $ parse parseExpr "scm48" "1234" `shouldBe` (Right $ Number 1234)
     it "parseExpr \"hoge\"" $ parse parseExpr "scm48" "\"hoge\"" `shouldBe` (Right $ String "hoge")
     it "parseExpr #t" $ parse parseExpr "scm48" "#t" `shouldBe` (Right $ Bool True)
     it "parseExpr #f" $ parse parseExpr "scm48" "#f" `shouldBe` (Right $ Bool False)
+    it "parrseExpr ()" $ parse parseExpr "scm48" "()" `shouldBe` (Right $ List [])
+    it "parrseExpr (1 2 3)" $ parse parseExpr "scm48" "(1 2 3)" `shouldBe` (Right $ List [Number 1, Number 2, Number 3])
+    it "parrseExpr (1 . (#t . (\"hoge\" . (1 2 3))))" $
+      parse parseExpr "scm48" "(1 . (#t . (\"hoge\" . (1 2 3))))"
+        `shouldBe` (Right $ DottedList [Number 1] $ DottedList [Bool True] $ DottedList [String "hoge"] $ List [Number 1, Number 2, Number 3])
