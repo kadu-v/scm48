@@ -77,6 +77,7 @@ parseExpr =
     <|> parseNumber
     <|> parseString
     <|> parseBool
+    <|> parseQuoted
     <|> do
       char '('
       x <- try parseList <|> parseDottedList
@@ -84,7 +85,7 @@ parseExpr =
       return x
 
 --
-readExpr :: String -> String
+readExpr :: String -> LispVal
 readExpr input = case parse parseExpr "scm48" input of
-  Left err -> "No match: " ++ show err
-  Right val -> "Found value: " ++ show val
+  Left err -> String $ "No match: " ++ show err
+  Right val -> val

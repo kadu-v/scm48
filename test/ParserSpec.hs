@@ -61,3 +61,4 @@ spec = do
     it "parrseExpr (1 . (#t . (\"hoge\" . (1 2 3))))" $
       parse parseExpr "scm48" "(1 . (#t . (\"hoge\" . (1 2 3))))"
         `shouldBe` (Right $ DottedList [Number 1] $ DottedList [Bool True] $ DottedList [String "hoge"] $ List [Number 1, Number 2, Number 3])
+    it "parseExpr '(1 2 3)" $ parse parseExpr "scm48" "\'(1 2 3)" `shouldBe` (Right $ List [Atom "quote", List [Number 1, Number 2, Number 3]])
