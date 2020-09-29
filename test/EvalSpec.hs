@@ -7,8 +7,11 @@ import Test.Hspec
 
 evalAndParse :: String -> LispVal
 evalAndParse input =
-  case readExpr input of
-    Right x -> eval x
+  let val = do
+        x <- readExpr input
+        y <- eval x
+        return y
+   in case val of Right x -> x
 
 spec :: Spec
 spec = do
