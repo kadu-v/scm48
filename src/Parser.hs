@@ -1,7 +1,10 @@
 module Parser where
 
-import Syntax
+import Control.Monad.Except (MonadError (throwError))
+import Error (LispError (Parser), ThrowsError)
+import Syntax (LispVal (..))
 import Text.ParserCombinators.Parsec hiding (spaces)
+import Text.ParserCombinators.Parsec.Error ()
 
 --
 symbol :: Parser Char
@@ -85,7 +88,7 @@ parseExpr =
       return x
 
 --
-readExpr :: String -> LispVal
+readExpr :: String -> ThrowsError LispVal
 readExpr input = case parse parseExpr "scm48" input of
-  Left err -> String $ "No match: " ++ show err
-  Right val -> val
+  Left err -> throwError (Parser err)
+  Right val -> return val

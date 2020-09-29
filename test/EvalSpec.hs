@@ -5,7 +5,10 @@ import Parser
 import Syntax
 import Test.Hspec
 
-evalAndParse = eval . readExpr
+evalAndParse :: String -> LispVal
+evalAndParse input =
+  case readExpr input of
+    Right x -> eval x
 
 spec :: Spec
 spec = do

@@ -6,4 +6,10 @@ import Parser
 import System.Environment
 
 main :: IO ()
-main = getArgs >>= print . eval . readExpr . head
+main =
+  do
+    x <- getArgs
+    let y = (readExpr . head) x
+    case y of
+      Left x -> print x
+      Right x -> print $ eval x
