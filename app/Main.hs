@@ -1,5 +1,6 @@
 module Main where
 
+import Error
 import Eval
 import Lib
 import Parser
@@ -8,8 +9,6 @@ import System.Environment
 main :: IO ()
 main =
   do
-    x <- getArgs
-    let y = (readExpr . head) x
-    case y of
-      Left x -> print x
-      Right x -> print $ eval x
+    args <- getArgs
+    evaled <- return $ show <$> (readExpr (args !! 0) >>= eval)
+    putStrLn $ extractValue $ trapError evaled
