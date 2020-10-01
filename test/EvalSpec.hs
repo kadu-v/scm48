@@ -28,8 +28,53 @@ spec = do
     it "operator: (mod 5 3)" $ evalAndParse "(mod 5 3)" `shouldBe` (Number 2)
     it "operator: (quotient 5 3)" $ evalAndParse "(quotient 5 3)" `shouldBe` (Number 1)
     it "operator: (remainder 3 7)" $ evalAndParse "(remainder 3 7)" `shouldBe` (Number 3)
+
     it "operator: (= 1 1)" $ evalAndParse "(= 1 1)" `shouldBe` (Bool True)
     it "oeprator: (= 1 2)" $ evalAndParse "(= 1 2)" `shouldBe` (Bool False)
+
     it "oeprator: (> 1 2)" $ evalAndParse "(> 2 1)" `shouldBe` (Bool True)
     it "operator: (> 1 1)" $ evalAndParse "(> 1 1)" `shouldBe` (Bool False)
     it "operator: (> 2 1)" $ evalAndParse "(> 1 2)" `shouldBe` (Bool False)
+
+    it "oeprator: (< 1 2)" $ evalAndParse "(= 1 2)" `shouldBe` (Bool False)
+    it "oeprator: (< 1 2)" $ evalAndParse "(> 2 1)" `shouldBe` (Bool True)
+    it "operator: (< 1 1)" $ evalAndParse "(> 1 1)" `shouldBe` (Bool False)
+
+    it "operator: (/= 1 2)" $ evalAndParse "(/= 1 2)" `shouldBe` (Bool True)
+    it "operator: (/= 1 1)" $ evalAndParse "(/= 1 1)" `shouldBe` (Bool False)
+    it "operator: (/= 3 2)" $ evalAndParse "(/= 3 2)" `shouldBe` (Bool True)
+
+    it "operator: (>= 1 2)" $ evalAndParse "(>= 1 2)" `shouldBe` (Bool False)
+    it "operator: (>= 1 1)" $ evalAndParse "(>= 1 1)" `shouldBe` (Bool True)
+    it "operator: (>= 3 2)" $ evalAndParse "(>= 3 2)" `shouldBe` (Bool True)
+
+    it "oeprator: (<= 3 2)" $ evalAndParse "(<= 3 2)" `shouldBe` (Bool False)
+    it "oeprator: (<= 1 2)" $ evalAndParse "(<= 1 2)" `shouldBe` (Bool True)
+    it "operator: (<= 1 1)" $ evalAndParse "(<= 1 1)" `shouldBe` (Bool True)
+
+    it "oeprator: (&& #f #f)" $ evalAndParse "(&& #f #f)" `shouldBe` (Bool False)
+    it "operator: (&& #t #f)" $ evalAndParse "(&& #t #f)" `shouldBe` (Bool False)
+    it "operator: (&& #t #t)" $ evalAndParse "(&& #t #t)" `shouldBe` (Bool True)
+
+    it "oeprator: (|| #f #f)" $ evalAndParse "(|| #f #f)" `shouldBe` (Bool False)
+    it "oeprator: (|| #t #f)" $ evalAndParse "(|| #t #f)" `shouldBe` (Bool True)
+    it "oeprator: (|| #t #t)" $ evalAndParse "(|| #t #t)" `shouldBe` (Bool True)
+
+    it "oeprator: (string=? \"hoge\" \"hoge\")" $ evalAndParse "(string=? \"hoge\" \"hoge\")" `shouldBe` (Bool True)
+    it "operator: (string=? \"hoge\" \"foo\")" $ evalAndParse "(string=? \"hoge\" \"foo\")" `shouldBe` (Bool False)
+
+    it "oeprator: (string>? \"foo\" \"hoge\")" $ evalAndParse "(string>? \"foo\" \"hoge\")" `shouldBe` (Bool False)
+    it "oeprator: (string>? \"hoge\" \"hoge\")" $ evalAndParse "(string>? \"hoge\" \"hoge\")" `shouldBe` (Bool False)
+    it "oeprator: (string>? \"hoge\" \"bar\")" $ evalAndParse "(string>? \"hoge\" \"bar\")" `shouldBe` (Bool True)
+
+    it "oeprator: (string<? \"foo\" \"hoge\")" $ evalAndParse "(string<? \"foo\" \"hoge\")" `shouldBe` (Bool True)
+    it "oeprator: (string<? \"hoge\" \"hoge\")" $ evalAndParse "(string<? \"hoge\" \"hoge\")" `shouldBe` (Bool False)
+    it "oeprator: (string<? \"hoge\" \"bar\")" $ evalAndParse "(string<? \"hoge\" \"bar\")" `shouldBe` (Bool False)
+
+    it "oeprator: (string>=? \"foo\" \"hoge\")" $ evalAndParse "(string>=? \"foo\" \"hoge\")" `shouldBe` (Bool False)
+    it "oeprator: (string>=? \"hoge\" \"hoge\")" $ evalAndParse "(string>=? \"hoge\" \"hoge\")" `shouldBe` (Bool True)
+    it "oeprator: (string>=? \"hoge\" \"bar\")" $ evalAndParse "(string>=? \"hoge\" \"bar\")" `shouldBe` (Bool True)
+
+    it "oeprator: (string<=? \"foo\" \"hoge\")" $ evalAndParse "(string<=? \"foo\" \"hoge\")" `shouldBe` (Bool True)
+    it "oeprator: (string<=? \"hoge\" \"hoge\")" $ evalAndParse "(string<=? \"hoge\" \"hoge\")" `shouldBe` (Bool True)
+    it "oeprator: (string<=? \"hoge\" \"bar\")" $ evalAndParse "(string<=? \"hoge\" \"bar\")" `shouldBe` (Bool False)
