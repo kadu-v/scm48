@@ -10,6 +10,12 @@ eval val@(String _) = return val
 eval val@(Number _) = return val
 eval val@(Bool _) = return val
 eval (List [Atom "quate", val]) = return val
+eval (List [Atom "if", pred, conseq, alt]) =
+  do
+    result <- eval pred
+    case result of
+      Bool True -> eval conseq
+      Bool False -> eval alt
 eval (List (Atom func : args)) = mapM eval args >>= apply func
 eval badform = throwError $ BadSpecialForm "Unrecognized special form" badform
 
@@ -92,3 +98,5 @@ unpackStr notString = throwError $ TypeMismatch "String" notString
 unpackBool :: LispVal -> ThrowsError Bool
 unpackBool (Bool b) = return $ b
 unpackBool notBool = throwError $ TypeMismatch "Boolean" notBool
+
+--
