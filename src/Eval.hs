@@ -9,7 +9,7 @@ eval :: LispVal -> ThrowsError LispVal
 eval val@(String _) = return val
 eval val@(Number _) = return val
 eval val@(Bool _) = return val
-eval (List [Atom "quate", val]) = return val
+eval (List [Atom "quote", val]) = return val
 eval (List [Atom "if", pred, conseq, alt]) =
   do
     result <- eval pred
@@ -22,7 +22,7 @@ eval badform = throwError $ BadSpecialForm "Unrecognized special form" badform
 --
 apply :: String -> [LispVal] -> ThrowsError LispVal
 apply func args =
-  maybe (throwError $ NotFunction "Unrecognised primitive function args" func) ($ args) $ lookup func primitives
+  maybe (throwError $ NotFunction "Unrecognised primitive function args" func) ($ args) (lookup func primitives)
 
 --
 primitives :: [(String, [LispVal] -> ThrowsError LispVal)]
@@ -46,7 +46,10 @@ primitives =
     ("string<?", strBoolBinop (<)),
     ("string>?", strBoolBinop (>)),
     ("string<=?", strBoolBinop (<=)),
-    ("string>=?", strBoolBinop (>=))
+    ("string>=?", strBoolBinop (>=)),
+    ("car", car),
+    ("cdr", cdr),
+    ("cons", cons)
   ]
 
 --
@@ -100,3 +103,24 @@ unpackBool (Bool b) = return $ b
 unpackBool notBool = throwError $ TypeMismatch "Boolean" notBool
 
 --
+car :: [LispVal] -> ThrowsError LispVal
+car [List (x : xs)] = return x
+car [DottedList (x : xs) _] = return x
+car [badArg] = throwError $ TypeMismatch "pair" badArg
+car badArgList = throwError $ NumArgs 1 badArgList
+
+--
+cdr :: [LispVal] -> ThrowsError LispVal
+cdr [List (x : xs)] = return $ List xs
+cdr [DottedList [xs] x] = return x
+cdr [DottedList (_ : xs) x] = return $ DottedList xs x
+cdr [badArg] = throwError $ TypeMismatch "pair" badArg
+cdr badArgList = throwError $ NumArgs 1 badArgList
+
+--
+cons :: [LispVal] -> ThrowsError LispVal
+cons [x, List []] = return $ List [x]
+cons [x, List xs] = return $ List $ x : xs
+cons [x, DottedList xs xlast] = return $ DottedList (x : xs) xlast
+cons [x, y] = return $ DottedList [x] y
+cons badArgList = throwError $ NumArgs 2 badArgList

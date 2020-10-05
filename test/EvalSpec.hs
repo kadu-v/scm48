@@ -79,10 +79,10 @@ spec = do
     it "oeprator: (string<=? \"hoge\" \"hoge\")" $ evalAndParse "(string<=? \"hoge\" \"hoge\")" `shouldBe` (Bool True)
     it "oeprator: (string<=? \"hoge\" \"bar\")" $ evalAndParse "(string<=? \"hoge\" \"bar\")" `shouldBe` (Bool False)
 
+    it "operator: (car '(1 2))" $ evalAndParse "(car '(1 2))" `shouldBe` (Number 1)
+
   describe "if expression test of eval" $ do
     it "(if #t 1 2)" $ evalAndParse "(if #t 1 2)" `shouldBe` (Number 1)
     it "(if #f 1 2)" $ evalAndParse "(if #f 1 2)" `shouldBe` (Number 2)
     it "(if (= 1 1) \"yes\" \"no\")" $ evalAndParse "(if (= 1 1) \"yes\" \"no\")" `shouldBe` (String "yes")
     it "(if (> 1 2) #t #f)" $ evalAndParse "(if (> 1 2) #t #f)" `shouldBe` (Bool False)
-
-    
