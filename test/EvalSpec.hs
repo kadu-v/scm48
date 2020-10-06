@@ -80,6 +80,8 @@ spec = do
     it "oeprator: (string<=? \"hoge\" \"bar\")" $ evalAndParse "(string<=? \"hoge\" \"bar\")" `shouldBe` (Bool False)
 
     it "operator: (car '(1 2))" $ evalAndParse "(car '(1 2))" `shouldBe` (Number 1)
+    it "operator: (car '(1 2 3))" $ evalAndParse "(car '(1 2 3))" `shouldBe` (Number 1)
+    it "operator: (car '(#t #f #t)" $ evalAndParse "(car '(#t #f #t))" `shouldBe` (Bool True)
 
   describe "if expression test of eval" $ do
     it "(if #t 1 2)" $ evalAndParse "(if #t 1 2)" `shouldBe` (Number 1)
