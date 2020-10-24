@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bf7509376216be5e31d62277a06cd1d283170077b82cc9e75fe4d3c9c7814370
+-- hash: 8ca9934557739efc6f05fc476d404da69d2110cc0c6e0137b6c60166a7acf7c0
 
 name:           scm48
 version:        0.1.0.0
@@ -31,6 +31,7 @@ library
       Eval
       Lib
       Parser
+      Repl
       Syntax
   other-modules:
       Paths_scm48
