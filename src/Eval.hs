@@ -3,23 +3,27 @@
 module Eval where
 
 import Control.Monad.Error
+import Data.IORef
 import Error
 import Syntax
 
 --
-eval :: LispVal -> ThrowsError LispVal
-eval val@(String _) = return val
-eval val@(Number _) = return val
-eval val@(Bool _) = return val
-eval (List [Atom "quote", val]) = return val
-eval (List [Atom "if", pred, conseq, alt]) =
+eval :: Env -> LispVal -> IOThrowsError LispVal
+eval env val@(String _) = return val
+eval env val@(Number _) = return val
+eval env val@(Bool _) = return val
+eval env (Atom id) = getVar env id
+eval env (List [Atom "quote", val]) = return val
+eval env (List [Atom "if", pred, conseq, alt]) =
   do
-    result <- eval pred
+    result <- eval env pred
     case result of
-      Bool True -> eval conseq
-      Bool False -> eval alt
-eval (List (Atom func : args)) = mapM eval args >>= apply func
-eval badform = throwError $ BadSpecialForm "Unrecognized special form" badform
+      Bool True -> eval env conseq
+      Bool False -> eval env alt
+eval env (List [Atom "set!", Atom var, form]) = eval env form >>= setVar env var
+eval env (List [Atom "define", Atom var, form]) = eval env form >>= defineVar env var
+eval env (List (Atom func : args)) = mapM (eval env) args >>= liftThrows . apply func
+eval env badform = throwError $ BadSpecialForm "Unrecognized special form" badform
 
 --
 apply :: String -> [LispVal] -> ThrowsError LispVal
@@ -167,3 +171,54 @@ equal [arg1, arg2] = do
   eqvEquals <- eqv [arg1, arg2]
   return $ Bool $ (primitiveEquals || let (Bool x) = eqvEquals in x)
 equal badArgList = throwError $ NumArgs 2 badArgList
+
+--
+type Env = IORef [(String, IORef LispVal)]
+
+--
+nullEnv :: IO Env
+nullEnv = newIORef []
+
+--
+isBound :: Env -> String -> IO Bool
+isBound envRef var = readIORef envRef >>= return . maybe False (const True) . lookup var
+
+--
+getVar :: Env -> String -> IOThrowsError LispVal
+getVar envRef var = do
+  env <- liftIO $ readIORef envRef
+  maybe
+    (throwError $ UnboundVar "Getting an unbound variable: " var)
+    (liftIO . readIORef)
+    (lookup var env)
+
+--
+setVar :: Env -> String -> LispVal -> IOThrowsError LispVal
+setVar envRef var value = do
+  env <- liftIO $ readIORef envRef
+  maybe
+    (throwError $ UnboundVar "Getting an unbound variable: " var)
+    (liftIO . (flip writeIORef value))
+    (lookup var env)
+  return value
+
+--
+defineVar :: Env -> String -> LispVal -> IOThrowsError LispVal
+defineVar envRef var value = do
+  alreadyDefined <- liftIO $ isBound envRef var
+  if alreadyDefined
+    then setVar envRef var value
+    else liftIO $ do
+      valueRef <- newIORef value
+      env <- readIORef envRef
+      writeIORef envRef ((var, valueRef) : env)
+      return value
+
+--
+bindVars :: Env -> [(String, LispVal)] -> IO Env
+bindVars envRef bindings = readIORef envRef >>= extendEnv bindings >>= newIORef
+  where
+    extendEnv bindings env = liftM (\e -> e ++ env) (mapM addBindings bindings)
+    addBindings (var, value) = do
+      ref <- newIORef value
+      return (var, ref)
