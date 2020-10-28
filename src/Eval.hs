@@ -172,6 +172,9 @@ equal [arg1, arg2] = do
   return $ Bool $ (primitiveEquals || let (Bool x) = eqvEquals in x)
 equal badArgList = throwError $ NumArgs 2 badArgList
 
+{-
+TODO: IORef をSTRefに置き換えて，unittestが走るようにする．
+-}
 --
 type Env = IORef [(String, IORef LispVal)]
 
