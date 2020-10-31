@@ -1,14 +1,16 @@
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Eval where
 
 import Control.Monad.Error
-import Data.IORef
+import Control.Monad.ST
+import Data.STRef
 import Error
 import Syntax
 
 --
-eval :: Env -> LispVal -> IOThrowsError LispVal
+eval :: Env s -> LispVal -> STThrowsError s LispVal
 eval env val@(String _) = return val
 eval env val@(Number _) = return val
 eval env val@(Bool _) = return val
@@ -176,52 +178,64 @@ equal badArgList = throwError $ NumArgs 2 badArgList
 TODO: IORef をSTRefに置き換えて，unittestが走るようにする．
 -}
 --
-type Env = IORef [(String, IORef LispVal)]
+type Env s = STRef s [(String, STRef s LispVal)]
 
 --
-nullEnv :: IO Env
-nullEnv = newIORef []
+type STThrowsError s = ErrorT LispError (ST s)
 
 --
-isBound :: Env -> String -> IO Bool
-isBound envRef var = readIORef envRef >>= return . maybe False (const True) . lookup var
+liftThrows :: ThrowsError a -> STThrowsError s a
+liftThrows (Left err) = throwError err
+liftThrows (Right val) = return val
 
 --
-getVar :: Env -> String -> IOThrowsError LispVal
+runSTThrows :: STThrowsError s String -> ST s String
+runSTThrows action = runErrorT (trapError action) >>= return . extractValue
+
+--
+nullEnv :: ST s (Env s)
+nullEnv = newSTRef []
+
+--
+isBound :: Env s -> String -> ST s Bool
+isBound envRef var = readSTRef envRef >>= return . maybe False (const True) . lookup var
+
+--
+getVar :: Env s -> String -> STThrowsError s LispVal
 getVar envRef var = do
-  env <- liftIO $ readIORef envRef
+  env <- lift $ readSTRef envRef
   maybe
     (throwError $ UnboundVar "Getting an unbound variable: " var)
-    (liftIO . readIORef)
+    (lift . readSTRef)
     (lookup var env)
 
 --
-setVar :: Env -> String -> LispVal -> IOThrowsError LispVal
+setVar :: Env s -> String -> LispVal -> STThrowsError s LispVal
 setVar envRef var value = do
-  env <- liftIO $ readIORef envRef
+  env <- lift $ readSTRef envRef
   maybe
     (throwError $ UnboundVar "Getting an unbound variable: " var)
-    (liftIO . (flip writeIORef value))
+    (lift . (flip writeSTRef value))
     (lookup var env)
   return value
 
 --
-defineVar :: Env -> String -> LispVal -> IOThrowsError LispVal
+defineVar :: Env s -> String -> LispVal -> STThrowsError s LispVal
 defineVar envRef var value = do
-  alreadyDefined <- liftIO $ isBound envRef var
+  alreadyDefined <- lift $ isBound envRef var
   if alreadyDefined
     then setVar envRef var value
-    else liftIO $ do
-      valueRef <- newIORef value
-      env <- readIORef envRef
-      writeIORef envRef ((var, valueRef) : env)
+    else lift $ do
+      valueRef <- newSTRef value
+      env <- readSTRef envRef
+      writeSTRef envRef ((var, valueRef) : env)
       return value
 
 --
-bindVars :: Env -> [(String, LispVal)] -> IO Env
-bindVars envRef bindings = readIORef envRef >>= extendEnv bindings >>= newIORef
+bindVars :: Env s -> [(String, LispVal)] -> ST s (Env s)
+bindVars envRef bindings = readSTRef envRef >>= extendEnv bindings >>= newSTRef
   where
     extendEnv bindings env = liftM (\e -> e ++ env) (mapM addBindings bindings)
     addBindings (var, value) = do
-      ref <- newIORef value
+      ref <- newSTRef value
       return (var, ref)
