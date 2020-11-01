@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "scm48:lib"
+
+    - path: "./app/Main.hs"
+      component: "scm48:exe:scm48-exe"
+
+    - path: "./app/Paths_scm48.hs"
+      component: "scm48:exe:scm48-exe"
+
+    - path: "./test"
+      component: "scm48:test:scm48-test"

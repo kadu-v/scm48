@@ -193,6 +193,10 @@ runSTThrows :: STThrowsError s String -> ST s String
 runSTThrows action = runErrorT (trapError action) >>= return . extractValue
 
 --
+runSTLispVal :: STThrowsError s LispVal -> ST s (ThrowsError LispVal)
+runSTLispVal action = runErrorT action >>= return
+
+--
 nullEnv :: ST s (Env s)
 nullEnv = newSTRef []
 

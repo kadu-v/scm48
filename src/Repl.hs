@@ -1,6 +1,10 @@
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE RankNTypes #-}
+
 module Repl where
 
 import Control.Monad
+import Control.Monad.ST
 import Error
 import Eval
 import Parser
@@ -15,25 +19,25 @@ readPrompt :: String -> IO String
 readPrompt prompt = flushStr prompt >> getLine
 
 --
-evalString :: Env -> String -> IO String
-evalString env expr = runIOThrows $ liftM show $ (liftThrows $ readExpr expr) >>= eval env
+evalString :: Env s -> String -> ST s String
+evalString env expr = runSTThrows $ liftM show $ (liftThrows $ readExpr expr) >>= eval env
 
 --
-evalAndPrint :: Env -> String -> IO ()
-evalAndPrint env expr = evalString env expr >>= putStrLn
+evalAndPrint :: (forall s. Env s) -> String -> String
+evalAndPrint env expr = let x = runST $ evalString env expr in x
 
 --
-until_ :: Monad m => (a -> Bool) -> m a -> (a -> m ()) -> m ()
-until_ pred prompt action = do
-  result <- prompt
-  if pred result
-    then return ()
-    else action result >> until_ pred prompt action
+-- until_ :: Monad m => (a -> Bool) -> m a -> (a -> m ()) -> m ()
+-- until_ pred prompt action = do
+--   result <- prompt
+--   if pred result
+--     then return ()
+--     else action result >> until_ pred prompt action
 
---
-runOne :: String -> IO ()
-runOne expr = nullEnv >>= flip evalAndPrint expr
+-- --
+-- runOne :: String -> IO ()
+-- runOne expr = nullEnv >>= flip evalAndPrint expr
 
---
-runRepl :: IO ()
-runRepl = nullEnv >>= until_ (\x -> x == "quit" || x == ":q") (readPrompt "scm48> ") . evalAndPrint
+-- --
+-- -- runRepl :: IO ()
+-- runRepl = nullEnv >>= until_ (\x -> x == "quit" || x == ":q") (readPrompt "scm48> ") . evalAndPrint

@@ -1,19 +1,25 @@
 module EvalSpec (spec) where
 
-import Eval
+--import Control.Monad.Error
+
+import Control.Monad.ST
+import Eval (eval, nullEnv, runSTLispVal)
 import Parser
 import Syntax
 import Test.Hspec
 
 evalAndParse :: String -> LispVal
-evalAndParse input =
-  let val = do
-        x <- readExpr input
-        y <- eval x
-        return y
-   in case val of
-        Right x -> x
-        Left err -> String $ "error: " ++ show err
+evalAndParse input = case readExpr input of
+  Left err -> String $ show err
+  Right expr ->
+    let val = runST $ do
+          env <- nullEnv
+          runSTLispVal $ eval env expr
+     in case val of
+          Left err -> String $ show err
+          Right lispval -> lispval
+
+-- let val = runST $ runSTLispVal $ nullEnv >>= (flip eval expr) in val
 
 spec :: Spec
 spec = do
