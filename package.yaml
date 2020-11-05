@@ -39,6 +39,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - scm48
+    - mtl
 
 tests:
   scm48-test:

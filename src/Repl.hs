@@ -5,6 +5,8 @@ module Repl where
 
 import Control.Monad
 import Control.Monad.ST
+import Control.Monad.Trans
+--import Control.Monad.Trans.ST
 import Error
 import Eval
 import Parser
@@ -23,8 +25,11 @@ evalString :: Env s -> String -> ST s String
 evalString env expr = runSTThrows $ liftM show $ (liftThrows $ readExpr expr) >>= eval env
 
 --
-evalAndPrint :: (forall s. Env s) -> String -> String
-evalAndPrint env expr = let x = runST $ evalString env expr in x
+data STIO s a = STT s IO a
+
+--
+--evalAndPrint :: (forall s. Env s) -> String -> STIO String
+--evalAndPrint env expr = let x = runST $ evalString env expr in x
 
 --
 -- until_ :: Monad m => (a -> Bool) -> m a -> (a -> m ()) -> m ()
