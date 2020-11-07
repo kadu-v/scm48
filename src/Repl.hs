@@ -4,6 +4,7 @@ import Control.Monad
 import Eval
 import Parser
 import Syntax
+import System.Directory
 import System.IO
 
 --
@@ -31,8 +32,14 @@ until_ pred prompt action = do
     else action result >> until_ pred prompt action
 
 --
-runOne :: String -> IO ()
-runOne expr = primitiveBinding >>= flip evalAndPrint expr
+runOne :: [String] -> IO ()
+runOne args = do
+  --print args
+  -- cwd <- getCurrentDirectory
+  -- print cwd
+  -- env <- primitiveBinding >>= flip bindVars [("args", List $ map String $ drop 1 args)]
+  env <- primitiveBinding >>= flip bindVars [("args", List $ map String $ drop 1 args)]
+  (runIOThrows $ liftM show $ eval env (List [Atom "load", String (args !! 0)])) >>= hPutStrLn stderr
 
 --
 runRepl :: IO ()

@@ -91,7 +91,22 @@ parseExpr =
       return x
 
 --
+parseFile :: Parser [LispVal]
+parseFile = do
+  lst <- sepBy parseExpr spaces
+  eof
+  return $ lst
+
+--
 readExpr :: String -> ThrowsError LispVal
-readExpr input = case parse parseExpr "scm48" input of
-  Left err -> throwError (Parser err)
+readExpr = readOrThrow parseExpr
+
+--
+readExprList :: String -> ThrowsError [LispVal]
+readExprList = readOrThrow parseFile
+
+--
+readOrThrow :: Parser a -> String -> ThrowsError a
+readOrThrow parser input = case parse parser "scm48" input of
+  Left err -> throwError $ Parser err
   Right val -> return val

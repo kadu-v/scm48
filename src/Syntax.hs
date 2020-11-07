@@ -2,6 +2,7 @@ module Syntax where
 
 import Control.Monad.Error
 import Data.IORef
+import System.IO
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Error
 
@@ -18,6 +19,8 @@ data LispVal
   | Bool Bool
   | PrimitiveFunc ([LispVal] -> ThrowsError LispVal)
   | Func {params :: [String], vararg :: Maybe String, body :: [LispVal], closure :: Env}
+  | IOFunc ([LispVal] -> IOThrowsError LispVal)
+  | Port Handle
 
 --
 
@@ -41,6 +44,8 @@ showVal (Func {params = args, vararg = vararg, body = body, closure = env}) =
            Just arg -> " . " ++ arg
        )
     ++ ")..)"
+showVal (Port _) = "<IO Port>"
+showVal (IOFunc _) = "<IO primitive>"
 
 --
 unwordsList :: [LispVal] -> String
