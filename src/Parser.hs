@@ -1,8 +1,11 @@
 module Parser where
 
 import Control.Monad.Except (MonadError (throwError))
-import Error (LispError (Parser), ThrowsError)
-import Syntax (LispVal (..))
+import Syntax
+  ( LispError (Parser),
+    LispVal (Atom, Bool, DottedList, List, Number, String),
+    ThrowsError,
+  )
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Text.ParserCombinators.Parsec.Error ()
 

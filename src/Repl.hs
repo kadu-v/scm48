@@ -1,9 +1,9 @@
 module Repl where
 
 import Control.Monad
-import Error
 import Eval
 import Parser
+import Syntax
 import System.IO
 
 --
@@ -32,8 +32,8 @@ until_ pred prompt action = do
 
 --
 runOne :: String -> IO ()
-runOne expr = nullEnv >>= flip evalAndPrint expr
+runOne expr = primitiveBinding >>= flip evalAndPrint expr
 
 --
 runRepl :: IO ()
-runRepl = nullEnv >>= until_ (\x -> x == "quit" || x == ":q") (readPrompt "scm48> ") . evalAndPrint
+runRepl = primitiveBinding >>= until_ (\x -> x == "quit" || x == ":q") (readPrompt "scm48> ") . evalAndPrint
