@@ -27,7 +27,6 @@ source-repository head
 
 library
   exposed-modules:
-      Error
       Eval
       Lib
       Parser
@@ -39,6 +38,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , directory
     , hspec
     , mtl
     , parsec

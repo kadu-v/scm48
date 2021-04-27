@@ -28,6 +28,7 @@ library:
   - parsec
   - mtl
   - hspec
+  - directory
 
 executables:
   scm48-exe:
